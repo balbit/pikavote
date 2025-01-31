@@ -1,0 +1,13 @@
+pikavote.db
+
+node_modules/
+
+__pycache__/
+*.pyc
+
+.env
+.venv/
+env/
+venv/
+
+data/pika-early-data-raw.csv

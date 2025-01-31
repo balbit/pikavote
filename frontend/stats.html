@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pikavote - Video Statistics</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Include Chart.js via CDN -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav id="navbar">
+        <div class="nav-left">
+            <h2>Pikavote</h2>
+        </div>
+        <div class="nav-right">
+            <span id="usernameDisplay">Username</span>
+            <a href="/voting.html" id="navVoting">Voting</a>
+            <a href="/myvotes.html" id="navMyVotes">My Votes</a>
+            <a href="/stats.html" id="navStats">Video Stats</a>
+            <button id="logoutButton">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Video Stats Section -->
+    <div id="app">
+        <div id="videoStats" class="section">
+            <h2>Video Statistics</h2>
+            <div id="statsList">
+                <!-- Stats will be populated here -->
+
+            </div>
+            <div id="statsCharts">
+                <!-- Container for Charts -->
+                <div style="display: flex; flex-wrap: wrap; gap: 40px; margin-top: 40px;">
+                    <div style="width: 40%;">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                    <div style="width: 50%;">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="dist/stats.js"></script>
+    <script src="dist/shared.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pikavote - Login</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav id="navbar">
+        <div class="nav-left">
+            <h2>Pikavote</h2>
+        </div>
+        <div class="nav-right">
+            <span id="usernameDisplay">Username</span>
+            <a href="/voting.html" id="navVoting">Voting</a>
+            <a href="/myvotes.html" id="navMyVotes">My Votes</a>
+            <a href="/stats.html" id="navStats">Video Stats</a>
+            <button id="logoutButton">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Login Section -->
+    <div id="app">
+        <div id="login" class="section">
+            <h1>Welcome to Pikavote</h1>
+            <div id="loginContainer">
+                <h2>Login</h2>
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" list="usernames" autocomplete="off">
+                    <datalist id="usernames"></datalist>
+                </div>
+                <button id="loginButton">Login</button>
+            </div>
+        </div>
+    </div>
+    <script src="dist/shared.js"></script>
+    <script src="dist/login.js"></script>
+</body>
+</html>
