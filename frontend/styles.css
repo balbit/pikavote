@@ -3,7 +3,8 @@ body {
     font-family: "Inter", sans-serif; /* Use Inter or similar rounded sans-serif */
     margin: 0;
     padding: 0;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: auto;  /* Prevent scrolling */
     background-color: #111; /* Dark background */
     color: #f5e8d6; /* Soft beige text */
 }
@@ -60,7 +61,8 @@ body {
     flex-direction: column;
     align-items: center;
     padding-top: 80px; /* Space for navbar */
-    min-height: 100vh;
+    height: calc(100vh - 80px);  /* Subtract navbar height */
+    overflow: auto;
 }
 
 .section {
@@ -70,7 +72,9 @@ body {
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
     width: 80%;
     max-width: 1000px;
-    margin: 20px auto;
+    margin: 0 auto;
+    height: calc(100% - 60px);  /* Leave room for padding */
+    overflow: auto;
 }
 
 /* Input and Buttons */
@@ -110,7 +114,7 @@ button:hover {
 
 /* Video Section */
 #videoContainer {
-    display: flex;
+    display: contents;
     justify-content: space-between;
     align-items: flex-start;
     margin-top: 20px;
@@ -118,7 +122,7 @@ button:hover {
 }
 
 video {
-    max-width: 45%;
+    max-width: 100%;
     max-height: 50vh;
     border-radius: 8px;
     border: 2px solid #444;
@@ -162,7 +166,7 @@ input[type="range"] {
     margin-top: 20px;
     background: #222;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: auto;
 }
 
 #votesTable th, #votesTable td,
@@ -179,6 +183,51 @@ input[type="range"] {
 
 #votesTable tr:hover, #topVideosTable tr:hover {
     background-color: #2a2a2a;
+}
+
+#votesTable tr.selected {
+    background-color: #2d2d2d; /* Slightly lighter dark shade */
+    transition: background-color 0.3s ease;
+}
+
+#votesTable tr.selected:hover {
+    background-color: #383838; /* Even lighter shade on hover */
+}
+
+#voteControls label {
+    font-size: 1rem;
+    color: #e3c8a3;
+}
+
+/* Styling for the filter dropdown */
+#filterScore {
+    padding: 8px 12px;
+    font-size: 1rem;
+    background-color: #222;
+    color: #f5e8d6;
+    border: 1px solid #444;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+/* Hover effect */
+#filterScore:hover {
+    background-color: #2a2a2a;
+    border-color: #c4ad93;
+}
+
+/* Focus effect */
+#filterScore:focus {
+    outline: none;
+    border-color: #b2997a;
+    box-shadow: 0 0 5px rgba(196, 173, 147, 0.5);
+}
+
+/* Dropdown option styling */
+#filterScore option {
+    background-color: #222;
+    color: #f5e8d6;
 }
 
 /* Add these styles for video links */
@@ -246,4 +295,148 @@ input[type="range"] {
     .slider-container {
         width: 100%;
     }
+}
+
+/* Grid layout for displaying multiple video cards */
+.video-rows {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 1rem;
+    gap: 1rem;
+    height: calc(100% - 100px);  /* Leave room for header and hint */
+    overflow: hidden;
+}
+
+.video-row {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+
+.video-card {
+    position: relative;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background: #1a1a1a;
+    cursor: pointer;
+    padding: 0;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    width: 100%;
+}
+
+.video-card.selected {
+    border-color: #c4ad93;
+}
+
+.video-card.voted {
+    opacity: 0.7;
+}
+
+/* Video wrapper takes up full space of card */
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: block;  /* Change from flex to block */
+}
+
+/* Make videos fill their container while maintaining aspect ratio */
+.video-wrapper video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;  /* Change from cover to contain to prevent cropping */
+}
+
+/* Vote overlay to display temporary vote (number) */
+.vote-overlay {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 2em;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Metadata button (info icon) placed on top-right (leaving room for star) */
+.meta-button {
+    position: absolute;
+    top: 5px;
+    right: 30px;
+    background: transparent;
+    border: none;
+    color: #f5e8d6;
+    font-size: 1.2em;
+    cursor: pointer;
+}
+
+/* Star button placed at the top-right corner */
+.star-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: transparent;
+    border: none;
+    color: #f5e8d6;
+    font-size: 1em;  /* reduced size */
+    cursor: pointer;
+}
+
+/* Metadata popup styling */
+.metadata-popup {
+    position: absolute;
+    top: 30px;
+    right: 5px;
+    background: #222;
+    padding: 10px;
+    border-radius: 8px;
+    color: #f5e8d6;
+    z-index: 10;
+    display: none;
+    width: 300px;
+}
+
+/* Hint element to display navigation instructions */
+.hint {
+    margin-bottom: 10px;
+    padding: 5px;
+    background: #333;
+    color: #e3c8a3;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* Custom Checkbox */
+.checkbox {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: #222;
+    border: 2px solid #444;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.checkbox::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background-color: #c4ad93;
+    border-radius: 2px;
+    transform: scale(0) translate(-50%, -50%);
+    transition: transform 0.3s;
+}
+
+.checkbox.checked {
+    background-color: #c4ad93;
+    border-color: #b2997a;
+}
+
+.checkbox.checked::after {
+    transform: scale(1) translate(-50%, -50%);
 }

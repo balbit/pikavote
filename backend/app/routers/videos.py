@@ -72,9 +72,7 @@ def get_unseen_videos(username: str, n: int = 1, db: Session = Depends(get_db)):
                     "email": user.email,
                     "name": user.name,
                     "following": user.following,
-                    "instagram": user.instagram,
-                    "tiktok": user.tiktok,
-                    "youtube": user.youtube
+                    "social": user.social
                 }
             }
             for video, user in unseen_videos
@@ -163,9 +161,7 @@ def get_video_by_id(video_id: int, db: Session = Depends(get_db)):
                 "email": user.email,
                 "name": user.name,
                 "following": user.following,
-                "instagram": user.instagram,
-                "tiktok": user.tiktok,
-                "youtube": user.youtube
+                "social": user.social
             }
         }
 

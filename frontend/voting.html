@@ -25,14 +25,14 @@
     <div id="app">
         <div id="voting" class="section">
             <h2>Vote on Videos</h2>
-            <div id="videoContainer"></div>
-            <div class="controls">
-                <button id="starButton">⭐ Star</button>
-                <div class="slider-container">
-                    <label for="ratingSlider">Rate the video: </label>
-                    <input type="range" id="ratingSlider" min="1" max="5" value="3">
-                </div>
-                <button id="nextVideo">Next Video</button>
+            <!-- Hint area for navigation instructions -->
+            <div id="hint" class="hint">
+                Use arrow keys to navigate between videos. Press number keys (1-5) to vote, and Enter to submit votes.
+            </div>
+            <!-- Video grid container -->
+            <div id="videoContainer" class="video-rows">
+                <div id="topRow" class="video-row"></div>
+                <div id="bottomRow" class="video-row"></div>
             </div>
         </div>
     </div>

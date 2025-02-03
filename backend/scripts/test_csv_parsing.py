@@ -15,7 +15,7 @@ def test_csv_parsing():
     db.commit()
 
     # Parse the CSV file
-    csv_path = 'data/pika-early-data-raw.csv'
+    csv_path = 'data/pika2.csv'
     crud.parse_csv_and_create_videos(db, csv_path)
 
     # Retrieve and print video objects

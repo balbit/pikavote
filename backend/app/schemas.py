@@ -5,9 +5,7 @@ class UserBase(BaseModel):
     email: str
     name: str
     following: str
-    instagram: str
-    tiktok: str
-    youtube: str
+    social: str
 
 class UserCreate(UserBase):
     pass

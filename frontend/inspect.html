@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pikavote - Inspect Video</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav id="navbar">
+    <div class="nav-left">
+      <h2>Pikavote</h2>
+    </div>
+    <div class="nav-right">
+      <span id="usernameDisplay">Username</span>
+      <a href="/voting.html" id="navVoting">Voting</a>
+      <a href="/myvotes.html" id="navMyVotes">My Votes</a>
+      <a href="/stats.html" id="navStats">Video Stats</a>
+      <button id="logoutButton">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Inspect Section -->
+  <div id="app">
+    <div id="inspect" class="section">
+      <h2>Inspect Video</h2>
+      <!-- Video container for the single video and metadata -->
+      <div id="videoContainer"></div>
+      <!-- Controls for voting on the single video -->
+      <div class="controls">
+        <button id="starButton">☆</button>
+        <div class="slider-container">
+          <label for="ratingSlider">Rate the video: </label>
+          <input type="range" id="ratingSlider" min="1" max="5" value="3" />
+        </div>
+        <button id="nextVideo">Next Video</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Load the inspect page TypeScript -->
+  <script src="dist/inspect.js"></script>
+  <script src="dist/shared.js"></script>
+</body>
+</html> 

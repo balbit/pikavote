@@ -38,7 +38,8 @@ def parse_csv_and_create_videos(db: Session, csv_path: str):
     with open(csv_path, 'r', newline='') as file:
         reader = csv.DictReader(file)
 
-        video_link_pattern = re.compile(r'https://(?:early-access\.)?pika\.art/video/[\w-]+')
+        # video_link_pattern = re.compile(r'https://(?:early-access\.)?pika\.art/video/[\w-]+')
+        pika_git_pattern = re.compile(r'https://pika-git-[\w-]+-pika-labs\.vercel\.app/video/[\w-]+')
 
         for row in reader:
             email = row['email']
@@ -46,9 +47,7 @@ def parse_csv_and_create_videos(db: Session, csv_path: str):
             name = row['name']
             links = row['links']
             following = row['following']
-            instagram = row['instagram']
-            tiktok = row['tiktok']
-            youtube = row['youtube']
+            social = row['social']
 
             # Create or get user
             user = db.query(models.User).filter(models.User.email == email).first()
@@ -57,17 +56,15 @@ def parse_csv_and_create_videos(db: Session, csv_path: str):
                     email=email,
                     name=name,
                     following=following,
-                    instagram=instagram,
-                    tiktok=tiktok,
-                    youtube=youtube
+                    social=social
                 )
                 db.add(user)
                 db.commit()
                 db.refresh(user)
 
             # Extract video links and comments
-            extracted_links = re.findall(video_link_pattern, links)
-            comments = re.sub(video_link_pattern, '', links).strip().replace('\n', ' ').replace('\r', ' ')
+            extracted_links = re.findall(pika_git_pattern, links)
+            comments = re.sub(pika_git_pattern, '', links).strip().replace('\n', ' ').replace('\r', ' ')
 
             for link in extracted_links:
                 video = models.Video(

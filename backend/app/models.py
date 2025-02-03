@@ -10,9 +10,7 @@ class User(Base):
     email = Column(String, primary_key=True, index=True)
     name = Column(String)
     following = Column(String)
-    instagram = Column(String)
-    tiktok = Column(String)
-    youtube = Column(String)
+    social = Column(String)
 
 class Video(Base):
     __tablename__ = 'videos'
