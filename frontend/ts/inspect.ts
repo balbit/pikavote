@@ -17,6 +17,94 @@ let inspectCurrentVideoId: number | null = null;
 let inspectCurrentStar: boolean = false;
 let inspectVideoBuffer: VideoData[] = [];
 
+function deleteVoteInspect(voteId: number) {
+    if (!confirm('Are you sure you want to delete this vote?')) {
+        return;
+    }
+
+    fetch(`/api/votes/${voteId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': 'Bearer ' + 'YOUR_BEARER_TOKEN', // Replace with dynamic token if available
+        },
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Vote deleted:', data);
+        // Refresh the votes table
+        fetchAndRenderVotesTable(inspectCurrentVideoId!);
+    })
+    .catch(err => {
+        console.error('Error deleting vote:', err);
+        alert('Failed to delete vote.');
+    });
+}
+
+async function fetchAndRenderVotesTable(videoId: number): Promise<void> {
+    try {
+      const response = await fetch(`/api/videos/video_votes/${videoId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const votes: { username: string; score: number; star: number; time: string; id: number }[] = await response.json();
+  
+      // Get the table body element
+      const tableBody = document.querySelector("#votesTable tbody");
+      if (!tableBody) {
+        console.error("Votes table body element not found");
+        return;
+      }
+      // Clear any existing rows
+      tableBody.innerHTML = "";
+  
+      // Create a table row for each vote
+      votes.forEach(vote => {
+        const row = document.createElement("tr");
+  
+        // Username cell
+        const usernameCell = document.createElement("td");
+        usernameCell.innerText = vote.username;
+        row.appendChild(usernameCell);
+  
+        // Score cell
+        const scoreCell = document.createElement("td");
+        scoreCell.innerText = vote.score.toString();
+        row.appendChild(scoreCell);
+  
+        // Star cell - show star if vote.star is truthy
+        const starCell = document.createElement("td");
+        starCell.innerText = vote.star ? "★" : "☆";
+        row.appendChild(starCell);
+  
+        // Timestamp cell - format the timestamp nicely
+        const timestampCell = document.createElement("td");
+        const voteTime = new Date(vote.time);
+        timestampCell.innerText = voteTime.toLocaleString();
+        row.appendChild(timestampCell);
+  
+        const deleteCell = document.createElement("td");
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.className = 'delete-button';
+        deleteButton.addEventListener('click', () => {
+            deleteVoteInspect(vote.id);
+        });
+        deleteCell.appendChild(deleteButton);
+        row.appendChild(deleteCell);
+
+        // Append the row to the table body
+        tableBody.appendChild(row);
+      });
+    } catch (err) {
+      console.error("Error fetching or rendering votes table:", err);
+    }
+  }
+
 // In inspect mode we only need one video at a time.
 async function inspectFillVideoBuffer(): Promise<void> {
     const username = localStorage.getItem("username");
@@ -101,6 +189,7 @@ async function displayVideoInspect(videoData: VideoData): Promise<void> {
 
         container.appendChild(infoContainer);
 
+        await fetchAndRenderVotesTable(videoData.video.id);
     } catch (err) {
         console.error("Error loading video:", err);
         container.innerHTML = "Failed to load video.";
@@ -181,10 +270,18 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     // Controls:
     document.getElementById("nextVideo")?.addEventListener("click", async () => {
-        await inspectFillVideoBuffer();
-        if (inspectVideoBuffer.length > 0) {
-            const videoData = inspectVideoBuffer.shift()!;
-            displayVideoInspect(videoData);
+        const nextVideoButton = document.getElementById("nextVideo");
+        if (nextVideoButton && nextVideoButton.innerHTML.includes("submitted")) {
+            return;
+        }
+        const ratingSlider = document.getElementById("ratingSlider") as HTMLInputElement;
+        const score = ratingSlider ? parseInt(ratingSlider.value) : 1;
+        submitVoteInspect(score, inspectCurrentStar);
+        if (nextVideoButton) {
+            nextVideoButton.innerHTML = `Vote submitted! (${score})`;
+
+            // Refresh the votes table
+            fetchAndRenderVotesTable(inspectCurrentVideoId!);
         }
     });
 
@@ -194,7 +291,14 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
 
     document.getElementById("ratingSlider")?.addEventListener("change", (event) => {
-        // Optionally, show preview of the selected vote.
+        const nextVideoButton = document.getElementById("nextVideo");
+        if (nextVideoButton) {
+            const vote = parseInt((event.target as HTMLInputElement).value);
+            if (vote === 0) {
+                nextVideoButton.innerHTML = "Skip Video";
+            }
+            nextVideoButton.innerHTML = `Submit Vote (${vote})`;
+        }
     });
 
     // Keyboard shortcuts: numbers (1-5) to vote; Enter to trigger next video.

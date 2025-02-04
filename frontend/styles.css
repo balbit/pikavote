@@ -102,6 +102,10 @@ button:hover {
     background-color: #b2997a;
 }
 
+button.active {
+    background-color: #f5f5f5;
+}
+
 #logoutButton {
     padding: 8px 12px;
     background-color: #c4ad93;
@@ -230,16 +234,52 @@ input[type="range"] {
     color: #f5e8d6;
 }
 
-/* Add these styles for video links */
+/* Style for the page size select dropdown */
+#pageSizeSelect {
+    padding: 8px 12px;
+    padding-right: 40px; /* Increase right padding to make space for the arrow */
+    font-size: 1rem;
+    background-color: #222;
+    color: #f5e8d6;
+    border: 1px solid #444;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    appearance: none; /* Remove default arrow styling */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg width='12' height='12' viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 8l4-4H2z' fill='%23f5e8d6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px 12px;
+}
+
+/* Hover effect */
+#pageSizeSelect:hover {
+    background-color: #2a2a2a;
+    border-color: #c4ad93;
+}
+
+/* Focus effect */
+#pageSizeSelect:focus {
+    outline: none;
+    border-color: #b2997a;
+    box-shadow: 0 0 5px rgba(196, 173, 147, 0.5);
+}
+
 .video-link {
     color: #e3c8a3;
     text-decoration: none;
     transition: color 0.3s;
+    padding: 4px 8px;
+    border: 1px solid #c4ad93;
+    border-radius: 4px;
 }
 
 .video-link:hover {
     color: #c4ad93;
     text-decoration: underline;
+    background-color: #333;
 }
 
 /* Add these styles for delete buttons */

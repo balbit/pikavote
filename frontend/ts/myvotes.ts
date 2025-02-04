@@ -32,10 +32,6 @@ async function extractPosterUrl(videoLink: string): Promise<string | null> {
         return null;
     }
 
-    const idx = html.indexOf('videoPoster');
-    console.log(html.slice(idx - 50, idx + 200));
-
-    // const regex = /videoPoster\\\\\\":\\s*\\"(https:\/\/[^\\]+\/poster\.jpg)\\"/;
     const regex = /videoPoster\\\\\\\":\\\\\\\"(https:[a-z0-9\/\.\-_]+poster.jpg)/;
     const match = html.match(regex);
     console.log('Match:', match);
