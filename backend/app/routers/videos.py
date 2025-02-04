@@ -95,25 +95,41 @@ def proxy_video(url: str):
         raise HTTPException(status_code=500, detail=f"Error fetching URL: {e}")
 
 @router.get("/stats")
-def get_video_stats(db: Session = Depends(get_db)):
+def get_video_stats(
+    offset: int = 0,
+    limit: int = 10,
+    db: Session = Depends(get_db)
+):
     try:
         stats = crud.get_video_stats(db)
-        # Include top_videos if needed
-        top_videos = db.query(
-            models.Video.id,
-            models.Video.video_link,
-            models.Video.submission_time,
-            models.User.name.label('creator_name'),
-            models.User.email.label('creator_email'),
-            func.avg(models.Vote.score).label('average_score'),
-            func.count(models.Vote.id).label('total_votes')
-        ).join(models.Vote, models.Video.id == models.Vote.video_id)\
-         .join(models.User, models.Video.user_email == models.User.email)\
-         .group_by(models.Video.id, models.Video.video_link, models.Video.submission_time,
-                  models.User.name, models.User.email)\
-         .order_by(func.avg(models.Vote.score).desc())\
-         .limit(10)\
-         .all()
+        # Get top_videos with pagination and new sorting:
+        top_videos = (
+            db.query(
+                models.Video.id,
+                models.Video.video_link,
+                models.Video.submission_time,
+                models.User.name.label('creator_name'),
+                models.User.email.label('creator_email'),
+                func.avg(models.Vote.score).label('average_score'),
+                func.count(models.Vote.id).label('total_votes')
+            )
+            .join(models.Vote, models.Video.id == models.Vote.video_id)
+            .join(models.User, models.Video.user_email == models.User.email)
+            .group_by(
+                models.Video.id,
+                models.Video.video_link,
+                models.Video.submission_time,
+                models.User.name,
+                models.User.email
+            )
+            .order_by(
+                (func.avg(models.Vote.score).desc()),
+                (func.count(models.Vote.id).desc())
+            )
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
 
         top_videos_formatted = [
             {
@@ -133,6 +149,29 @@ def get_video_stats(db: Session = Depends(get_db)):
         return stats
     except Exception as e:
         print(f"Error fetching video stats: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@router.get("/video_votes/{video_id}")
+def get_video_votes(video_id: int, db: Session = Depends(get_db)):
+    try:
+        votes = (
+            db.query(models.Vote)
+            .filter(models.Vote.video_id == video_id)
+            .order_by(models.Vote.time)
+            .all()
+        )
+        return [
+            {
+                "id": vote.id,
+                "username": vote.username,
+                "score": vote.score,
+                "star": vote.star,
+                "time": vote.time.isoformat() if vote.time else None,
+            }
+            for vote in votes
+        ]
+    except Exception as e:
+        print(f"Error fetching votes for video {video_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/video/{video_id}", response_model=dict)

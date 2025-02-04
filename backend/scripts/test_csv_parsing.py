@@ -9,13 +9,13 @@ def test_csv_parsing():
     # Create a new database session
     db: Session = SessionLocal()
 
-    # Clear existing data
-    db.query(models.Video).delete()
-    db.query(models.User).delete()
-    db.commit()
+    # # Clear existing data
+    # db.query(models.Video).delete()
+    # db.query(models.User).delete()
+    # db.commit()
 
     # Parse the CSV file
-    csv_path = 'data/pika2.csv'
+    csv_path = 'data/pika3.csv'
     crud.parse_csv_and_create_videos(db, csv_path)
 
     # Retrieve and print video objects
