@@ -4,6 +4,10 @@
 
 // // Register the necessary components
 // Chart.register(...registerables);
+// import JSZip from 'jszip';
+
+// const zip = new JSZip();
+// import * as JSZip from 'jszip'
 
 interface VideoStat {
     id: number;
@@ -55,31 +59,26 @@ function loadVideoStats() {
         const statsList = document.getElementById('statsList')!;
         const controlsHTML = `
             <div id="controls" style="margin-bottom: 20px;">
-                <button id="selectPage">Select All on Page</button>
-                <button id="downloadSelected">Download All Selected</button>
+                <span style="flex-grow: 1;"></span>
+                <button id="selectGe5">Score >= 5</button>
+                <button id="selectGe4">Score >= 4</button>
+                <button id="selectGe3">Score >= 3</button>
+                <button id="selectVotes2">Votes >= 2</button>
+                <button id="selectVotes3">Votes >= 3</button>
+                <button id="selectVotes4">Votes >= 4</button>
             </div>
         `;
 
-        const filterHTML = `
-            <div id="filters" style="margin-bottom: 20px;">
-            <button id="selectGe5">Score >= 5</button>
-            <button id="selectGe4">Score >= 4</button>
-            <button id="selectGe3">Score >= 3</button>
-            <button id="selectVotes2">Votes >= 2</button>
-            <button id="selectVotes3">Votes >= 3</button>
-            <button id="selectVotes4">Votes >= 4</button>
-            </div>
-        `;
 
         // Build pagination controls (previous/next)
         const paginationHTML = `
             <div id="pagination" style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
                 <button id="prevPage" ${currentPage === 0 ? 'disabled' : ''} style="display: flex; align-items: center;">
-                    <span style="font-size: 1.5em;">&#9664;</span>
+                    <span style="font-size: 1em;">&#9664;</span>
                 </button>
                 <span> Page ${currentPage + 1} </span>
                 <button id="nextPage" style="display: flex; align-items: center;">
-                    <span style="font-size: 1.5em;">&#9654;</span>
+                    <span style="font-size: 1em;">&#9654;</span>
                 </button>
                 <label for="pageSizeSelect" style="margin-left:20px;">Page Size:</label>
                 <select id="pageSizeSelect">
@@ -88,7 +87,14 @@ function loadVideoStats() {
                     <option value="20" ${pageSize === 20 ? 'selected' : ''}>20</option>
                     <option value="30" ${pageSize === 30 ? 'selected' : ''}>30</option>
                     <option value="50" ${pageSize === 50 ? 'selected' : ''}>50</option>
+                    <option value="100" ${pageSize === 100 ? 'selected' : ''}>100</option>
+                    <option value="300" ${pageSize === 300 ? 'selected' : ''}>300</option>
+                    <option value="600" ${pageSize === 600 ? 'selected' : ''}>600</option>
                 </select>
+                <span style="flex-grow: 1;"></span>
+                <button id="selectPage">Select All</button>
+                <button id="downloadSelected">Download Selected</button>
+                <button id="downloadAsZip">Download Zip</button>
             </div>
         `;
 
@@ -97,7 +103,6 @@ function loadVideoStats() {
             <h3>Top Videos</h3>
             ${paginationHTML}
             ${controlsHTML}
-            ${filterHTML}
             <table id="topVideosTable">
                 <thead>
                     <tr>
@@ -152,6 +157,55 @@ function loadVideoStats() {
                 </div>
             </div>
         `;
+
+        const userVotesList = document.getElementById('userVotesList')!;
+        fetch('/api/votes/top_users?limit=10', {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + 'YOUR_BEARER_TOKEN', // Adjust if needed
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.top_users && data.top_users.length > 0) {
+                // Build HTML for the top users table
+                let tableHTML = `
+                    <h3>Top Users by Votes</h3>
+                    <table id="topUsersTable">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th># Votes</th>
+                                <th>Average Score</th>
+                                <th>% of 5s</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.top_users.map((user:any) => `
+                                <tr>
+                                    <td>${user.username}</td>
+                                    <td>${user.num_votes}</td>
+                                    <td>${parseFloat(user.average_score).toFixed(2)}</td>
+                                    <td>${parseFloat(user.percent_5s).toFixed(2)}%</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                userVotesList.innerHTML = tableHTML;
+            } else {
+                userVotesList.innerHTML = `<p>No user vote data available.</p>`;
+            }
+        })
+        .catch(err => {
+            console.error('Error fetching top users:', err);
+            userVotesList.innerHTML = `<p>Error loading user vote data.</p>`;
+        });
 
         // Wire up pagination buttons
         const prevBtn = document.getElementById('prevPage')!;
@@ -271,17 +325,18 @@ function loadVideoStats() {
         }
 
         document.getElementById('downloadSelected')!.addEventListener('click', downloadSelectedStats);
+        document.getElementById('downloadAsZip')!.addEventListener('click', downloadSelectedAsZip);
 
         // Generate Pie Chart
         const pieCtx = (document.getElementById('pieChart') as HTMLCanvasElement).getContext('2d')!;
         new Chart(pieCtx, {
             type: 'pie',
             data: {
-                labels: ['0 Votes', '1+ Votes', '3+ Votes'],
+                labels: ['0 Votes', '1-2 Votes', '3+ Votes'],
                 datasets: [{
                     data: [
                         data.videos_with_0_votes,
-                        data.videos_with_1_or_more_votes, // 1-2 votes
+                        data.videos_with_1_or_more_votes - data.videos_with_3_or_more_votes, // 1-2 votes
                         data.videos_with_3_or_more_votes
                     ],
                     backgroundColor: [
@@ -349,7 +404,62 @@ async function downloadSelectedStats() {
     }
 }
 
-async function downloadVideoStats(videoLink: string, videoId: number): Promise<void> {
+async function downloadSelectedAsZip() {
+    const videoSourceUrls = [];
+
+    const rows = document.querySelectorAll<HTMLTableRowElement>('#topVideosTable tbody tr');
+    for (const row of Array.from(rows)) {
+        const checkbox = row.querySelector<HTMLInputElement>('.checkbox');
+        if (checkbox && checkbox.checked) {
+            const videoLink: string | null = row.getAttribute('data-video-link');
+            const videoIdText = row.querySelector<HTMLAnchorElement>('.video-link')?.textContent;
+            const videoId = videoIdText ? parseInt(videoIdText, 10) : NaN;
+            if (videoLink && !isNaN(videoId)) {
+                videoSourceUrls.push(getVideoSourceUrl(videoLink as string));
+            }
+        }
+    }
+
+    const zip = new JSZip();
+
+    // Map each video URL to a promise that fetches the file and adds it to the zip.
+    const downloadPromises = videoSourceUrls.map(async (videoUrl, index) => {
+        try {
+            const response = await fetch(await videoUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch ${videoUrl}: ${response.statusText}`);
+        }
+        // Get the video file as a blob (you can also use arrayBuffer() if needed)
+        const blob = await response.blob();
+        // Optionally, derive a file name. Here we simply name them sequentially.
+        const fileName = `video-${index + 1}.mp4`;
+        zip.file(fileName, blob);
+        } catch (error) {
+        console.error(`Error downloading ${videoUrl}:`, error);
+        }
+    });
+
+    // Wait for all the downloads to finish
+    await Promise.all(downloadPromises);
+
+    // Generate the zip file as a blob.
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+
+    // Trigger the download. You can use FileSaver.js if included:
+    // saveAs(zipBlob, 'videos.zip');
+
+    // Or do it manually:
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(zipBlob);
+    downloadLink.download = 'videos.zip';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    // Clean up
+    URL.revokeObjectURL(downloadLink.href);
+    downloadLink.remove();
+}
+
+async function getVideoSourceUrl(videoLink: string): Promise<string> {
     try {
         // Get the video page HTML through the proxy
         const response = await fetch(`/api/videos/proxy?url=${encodeURIComponent(videoLink)}`);
@@ -371,6 +481,17 @@ async function downloadVideoStats(videoLink: string, videoId: number): Promise<v
         if (!videoSourceUrl.startsWith('http://') && !videoSourceUrl.startsWith('https://')) {
             throw new Error('Invalid video URL');
         }
+        return videoSourceUrl;
+    } catch (error) {
+        console.error(`Error fetching video source URL:`, error);
+        return '';
+    }
+}
+
+async function downloadVideoStats(videoLink: string, videoId: number): Promise<void> {
+    try {
+        // Fetch the video source URL
+        const videoSourceUrl = await getVideoSourceUrl(videoLink);
     
         // Fetch the video file as a blob
         const videoResponse = await fetch(videoSourceUrl);

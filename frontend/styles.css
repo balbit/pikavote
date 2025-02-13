@@ -164,7 +164,7 @@ input[type="range"] {
 }
 
 /* Tables */
-#votesTable, #topVideosTable {
+#votesTable, #topVideosTable, #topUsersTable {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
@@ -174,27 +174,28 @@ input[type="range"] {
 }
 
 #votesTable th, #votesTable td,
+#topUsersTable th, #topUsersTable td,
 #topVideosTable th, #topVideosTable td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #333;
 }
 
-#votesTable th, #topVideosTable th {
+#votesTable th, #topVideosTable th, #topUsersTable th {
     background-color: #333;
     color: #e3c8a3;
 }
 
-#votesTable tr:hover, #topVideosTable tr:hover {
+#votesTable tr:hover, #topVideosTable tr:hover, #topUsersTable tr:hover {
     background-color: #2a2a2a;
 }
 
-#votesTable tr.selected {
+#votesTable tr.selected, #topVideosTable tr.selected, #topUsersTable tr.selected {
     background-color: #2d2d2d; /* Slightly lighter dark shade */
     transition: background-color 0.3s ease;
 }
 
-#votesTable tr.selected:hover {
+#votesTable tr.selected:hover, #topVideosTable tr.selected:hover, #topUsersTable tr.selected:hover {
     background-color: #383838; /* Even lighter shade on hover */
 }
 

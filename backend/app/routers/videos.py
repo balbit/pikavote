@@ -4,6 +4,9 @@ from .. import crud, models, schemas
 from ..database import SessionLocal, engine
 import requests
 from sqlalchemy import func
+import csv
+from fastapi.responses import StreamingResponse
+from io import StringIO
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -147,6 +150,83 @@ def get_video_stats(
         stats["top_videos"] = top_videos_formatted
 
         return stats
+    except Exception as e:
+        print(f"Error fetching video stats: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/statscsv")
+def get_video_stats(
+    offset: int = 0,
+    limit: int = 10,
+    db: Session = Depends(get_db)
+):
+    try:
+        stats = crud.get_video_stats(db)
+        # Get top_videos with pagination and new sorting:
+        top_videos = (
+            db.query(
+                models.Video.id,
+                models.Video.video_link,
+                models.Video.submission_time,
+                models.User.name.label('creator_name'),
+                models.User.email.label('creator_email'),
+                func.avg(models.Vote.score).label('average_score'),
+                func.count(models.Vote.id).label('total_votes')
+            )
+            .join(models.Vote, models.Video.id == models.Vote.video_id)
+            .join(models.User, models.Video.user_email == models.User.email)
+            .group_by(
+                models.Video.id,
+                models.Video.video_link,
+                models.Video.submission_time,
+                models.User.name,
+                models.User.email
+            )
+            .order_by(
+                (func.avg(models.Vote.score).desc()),
+                (func.count(models.Vote.id).desc())
+            )
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
+
+        top_videos_formatted = [
+            {
+                "id": video.id,
+                "video_link": video.video_link,
+                "submission_time": video.submission_time,
+                "creator_name": video.creator_name,
+                "creator_email": video.creator_email,
+                "average_score": video.average_score,
+                "total_votes": video.total_votes
+            }
+            for video in top_videos
+        ]
+
+        stats["top_videos"] = top_videos_formatted
+
+
+        output = StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["id", "video_link", "submission_time", "creator_name", "creator_email", "average_score", "total_votes"])
+
+        for video in top_videos:
+            writer.writerow([
+                video.id,
+                video.video_link,
+                video.submission_time,
+                video.creator_name,
+                video.creator_email,
+                video.average_score,
+                video.total_votes
+            ])
+
+        output.seek(0)
+        response = StreamingResponse(output, media_type="text/csv")
+        response.headers["Content-Disposition"] = "attachment; filename=video_stats.csv"
+        return response
     except Exception as e:
         print(f"Error fetching video stats: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
