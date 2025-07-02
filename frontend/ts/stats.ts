@@ -4,10 +4,7 @@
 
 // // Register the necessary components
 // Chart.register(...registerables);
-// import JSZip from 'jszip';
-
-// const zip = new JSZip();
-// import * as JSZip from 'jszip'
+declare var JSZip: any;
 
 interface VideoStat {
     id: number;
@@ -94,7 +91,7 @@ function loadVideoStats() {
                 <span style="flex-grow: 1;"></span>
                 <button id="selectPage">Select All</button>
                 <button id="downloadSelected">Download Selected</button>
-                <button id="downloadAsZip">Download Zip</button>
+                <button id="downloadAsZip">Download Individual</button>
             </div>
         `;
 
@@ -324,8 +321,8 @@ function loadVideoStats() {
             });
         }
 
-        document.getElementById('downloadSelected')!.addEventListener('click', downloadSelectedStats);
-        document.getElementById('downloadAsZip')!.addEventListener('click', downloadSelectedAsZip);
+        document.getElementById('downloadSelected')!.addEventListener('click', downloadSelectedAsZip);
+        document.getElementById('downloadAsZip')!.addEventListener('click', downloadSelectedStats);
 
         // Generate Pie Chart
         const pieCtx = (document.getElementById('pieChart') as HTMLCanvasElement).getContext('2d')!;
